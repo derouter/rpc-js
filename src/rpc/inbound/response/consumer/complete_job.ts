@@ -26,7 +26,7 @@ const InvalidBalanceDeltaSchema = v.object({
   content: v.object({ message: v.string() }),
 });
 
-const ErrorSchema = v.variant("tag", [
+const ErroneousDataSchema = v.variant("tag", [
   InvalidConsumerPeerIdSchema,
   InvalidJobIdSchema,
   NotSyncedYetSchema,
@@ -35,11 +35,8 @@ const ErrorSchema = v.variant("tag", [
 ]);
 
 export class ConsumerCompleteJobError extends Error {
-  constructor(
-    readonly tag: v.InferOutput<typeof ErrorSchema>["tag"],
-    message?: string
-  ) {
-    super(message);
+  constructor(readonly data: v.InferOutput<typeof ErroneousDataSchema>) {
+    super(JSON.stringify(data));
   }
 }
 

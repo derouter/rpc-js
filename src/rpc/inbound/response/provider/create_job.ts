@@ -14,14 +14,11 @@ const InvalidConnectionIdSchema = v.object({
   tag: v.literal("InvalidConnectionId"),
 });
 
-const ErrorSchema = v.variant("tag", [InvalidConnectionIdSchema]);
+const ErroneousDataSchema = v.variant("tag", [InvalidConnectionIdSchema]);
 
 export class ProviderCreateJobError extends Error {
-  constructor(
-    readonly tag: v.InferOutput<typeof ErrorSchema>["tag"],
-    message?: string
-  ) {
-    super(message);
+  constructor(readonly data: v.InferOutput<typeof ErroneousDataSchema>) {
+    super(JSON.stringify(data));
   }
 }
 

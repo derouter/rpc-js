@@ -5,34 +5,51 @@ import { Duplex } from "node:stream";
 import * as v from "valibot";
 import yamux from "yamux-js";
 import { InboundFrameSchema } from "./rpc/inbound.js";
-import type { OfferRemovedData } from "./rpc/inbound/request/OfferRemoved.js";
-import type { OfferUpdatedData } from "./rpc/inbound/request/OfferUpdated.js";
-import type { ProviderOpenConnectionData } from "./rpc/inbound/request/provider/ProviderOpenConnection.js";
-import type { ProviderHeartbeatData } from "./rpc/inbound/request/ProviderHeartbeat.js";
-import type { ProviderUpdatedData } from "./rpc/inbound/request/ProviderUpdated.js";
+import type {
+  JobRecord,
+  OfferRemoved,
+  OfferSnapshot,
+  ProviderHeartbeat,
+  ProviderRecord,
+} from "./rpc/inbound/dto.js";
+import type { ProviderOpenConnectionData } from "./rpc/inbound/request/provider/open_connection.js";
 import type { InboundResponseFrame } from "./rpc/inbound/response.js";
-import { ConsumerCompleteJobError } from "./rpc/inbound/response/consumer/ConsumerCompleteJob.js";
-import { ConsumerConfirmJobCompletionError } from "./rpc/inbound/response/consumer/ConsumerConfirmJobCompletion.js";
-import { ConsumerCreateJobError } from "./rpc/inbound/response/consumer/ConsumerCreateJob.js";
-import { ConsumerFailJobError } from "./rpc/inbound/response/consumer/ConsumerFailJob.js";
-import { ConsumerOpenConnectionError } from "./rpc/inbound/response/consumer/ConsumerOpenConnection.js";
-import { ConsumerSyncJobError } from "./rpc/inbound/response/consumer/ConsumerSyncJob.js";
-import { ProviderCompleteJobError } from "./rpc/inbound/response/provider/ProviderCompleteJob.js";
-import { ProviderCreateJobError } from "./rpc/inbound/response/provider/ProviderCreateJob.js";
-import { ProviderFailJobError } from "./rpc/inbound/response/provider/ProviderFailJob.js";
+import { ConsumerCompleteJobError } from "./rpc/inbound/response/consumer/complete_job.js";
+import { ConsumerConfirmJobCompletionError } from "./rpc/inbound/response/consumer/confirm_job_completion.js";
+import { ConsumerCreateJobError } from "./rpc/inbound/response/consumer/create_job.js";
+import { ConsumerFailJobError } from "./rpc/inbound/response/consumer/fail_job.js";
+import { ConsumerOpenConnectionError } from "./rpc/inbound/response/consumer/open_connection.js";
+import { ConsumerSyncJobError } from "./rpc/inbound/response/consumer/sync_job.js";
+import { ProviderCompleteJobError } from "./rpc/inbound/response/provider/complete_job.js";
+import { ProviderCreateJobError } from "./rpc/inbound/response/provider/create_job.js";
+import { ProviderFailJobError } from "./rpc/inbound/response/provider/fail_job.js";
+import { ProviderProvideError } from "./rpc/inbound/response/provider/provide.js";
+import { QueryActiveOffersError } from "./rpc/inbound/response/query/active_offers.js";
+import { QueryJobsError } from "./rpc/inbound/response/query/jobs.js";
+import { QueryOfferSnapshotsError } from "./rpc/inbound/response/query/offer_snapshots.js";
+import { QueryProvidersError } from "./rpc/inbound/response/query/providers.js";
+import { SubscribeToActiveOffersError } from "./rpc/inbound/response/subscription/active_offers.js";
+import { CancelSubscriptionError } from "./rpc/inbound/response/subscription/cancel.js";
+import { SubscribeToJobsError } from "./rpc/inbound/response/subscription/jobs.js";
 import type { OutboundRequestFrame } from "./rpc/outbound/request.js";
-import type { ConsumerCompleteJobData } from "./rpc/outbound/request/consumer/ConsumerCompleteJob.js";
-import type { ConsumerConfig } from "./rpc/outbound/request/consumer/ConsumerConfig.js";
-import type { ConsumerConfirmJobCompletionData } from "./rpc/outbound/request/consumer/ConsumerConfirmJobCompletion.js";
-import type { ConsumerCreateJobData } from "./rpc/outbound/request/consumer/ConsumerCreateJob.js";
-import type { ConsumerFailJobData } from "./rpc/outbound/request/consumer/ConsumerFailJob.js";
-import type { ConsumerOpenConnectionData } from "./rpc/outbound/request/consumer/ConsumerOpenConnection.js";
-import type { ConsumerSyncJobData } from "./rpc/outbound/request/consumer/ConsumerSyncJob.js";
-import type { ProviderCompleteJobData } from "./rpc/outbound/request/provider/ProviderCompleteJob.js";
-import type { ProviderConfig } from "./rpc/outbound/request/provider/ProviderConfig.js";
-import type { ProviderCreateJobData } from "./rpc/outbound/request/provider/ProviderCreateJob.js";
-import type { ProviderFailJobData } from "./rpc/outbound/request/provider/ProviderFailJob.js";
-import { Deferred, unreachable, writeAll, writeCbor } from "./util.js";
+import type { ConsumerCompleteJobData } from "./rpc/outbound/request/consumer/complete_job.js";
+import type { ConsumerConfirmJobCompletionData } from "./rpc/outbound/request/consumer/confirm_job_completion.js";
+import type { ConsumerCreateJobData } from "./rpc/outbound/request/consumer/create_job.js";
+import type { ConsumerFailJobData } from "./rpc/outbound/request/consumer/fail_job.js";
+import type { ConsumerOpenConnectionData } from "./rpc/outbound/request/consumer/open_connection.js";
+import type { ConsumerSyncJobData } from "./rpc/outbound/request/consumer/sync_job.js";
+import type { ProviderCompleteJobData } from "./rpc/outbound/request/provider/complete_job.js";
+import type { ProviderCreateJobData } from "./rpc/outbound/request/provider/create_job.js";
+import type { ProviderFailJobData } from "./rpc/outbound/request/provider/fail_job.js";
+import type { ProviderProvideData } from "./rpc/outbound/request/provider/provide.js";
+import type { QueryActiveOffersRequestData } from "./rpc/outbound/request/query/active_offers.js";
+import type { QueryJobsRequestData } from "./rpc/outbound/request/query/jobs.js";
+import type { QueryOfferSnapshotsRequestData } from "./rpc/outbound/request/query/offer_snapshots.js";
+import type { QueryProvidersRequestData } from "./rpc/outbound/request/query/providers.js";
+import type { SubscribeToActiveOffersRequestData } from "./rpc/outbound/request/subscription/active_offers.js";
+import type { SubscribeToJobsRequestData } from "./rpc/outbound/request/subscription/jobs.js";
+import type { OutboundResponseFrame } from "./rpc/outbound/response.js";
+import { Deferred, Mutex, unreachable, writeAll, writeCbor } from "./util.js";
 
 export {
   ConsumerCompleteJobError,
@@ -44,29 +61,26 @@ export {
   ProviderCompleteJobError,
   ProviderCreateJobError,
   ProviderFailJobError,
-  type ConsumerConfig,
-  type OfferRemovedData,
-  type OfferUpdatedData,
-  type ProviderHeartbeatData,
-  type ProviderUpdatedData,
+  type JobRecord,
+  type OfferRemoved,
+  type OfferSnapshot,
+  type ProviderHeartbeat,
+  type ProviderRecord,
 };
-
-export enum Auth {
-  Provider = 0,
-  Consumer = 1,
-}
 
 export class RPC {
   private _yamuxClient;
   private _rpcStream;
   private _socket;
   private _outboundRequestCounter = 0;
+  private _rpcWriteMutex = new Mutex();
 
   readonly emitter = new Emittery<{
-    offerRemoved: OfferRemovedData;
-    offerUpdated: OfferUpdatedData;
-    providerHeartbeat: ProviderHeartbeatData;
-    providerUpdated: ProviderUpdatedData;
+    offerRemoved: OfferRemoved;
+    offerUpdated: OfferSnapshot;
+    providerHeartbeat: ProviderHeartbeat;
+    providerUpdated: ProviderRecord;
+    jobUpdated: JobRecord;
     providerOpenConnection: ProviderOpenConnectionData & {
       stream: Duplex;
     };
@@ -77,13 +91,8 @@ export class RPC {
     Deferred<InboundResponseFrame>
   >();
 
-  constructor(rpcHost: string, rpcPort: number, auth: Auth) {
+  constructor(rpcHost: string, rpcPort: number) {
     this._socket = new net.Socket().connect(rpcPort, rpcHost);
-
-    const buffer = Buffer.allocUnsafe(1);
-    buffer.writeUInt8(auth);
-    this._socket.write(buffer);
-
     this._yamuxClient = new yamux.Client({ enableKeepAlive: true });
 
     this._socket.pipe(this._yamuxClient);
@@ -97,25 +106,6 @@ export class RPC {
 
   //#region Consumer methods
   //
-
-  async consumerConfig(data: ConsumerConfig): Promise<void> {
-    const response = await this._rpcRequest(
-      { type: "ConsumerConfig", data },
-      "ConsumerConfig"
-    );
-
-    if (response.type !== "ConsumerConfig") {
-      throw `Unexpected IPC response frame type: ${response.type}`;
-    }
-
-    for (const data of response.data.providers) {
-      await this.emitter.emit("providerUpdated", data);
-    }
-
-    for (const data of response.data.offers) {
-      await this.emitter.emit("offerUpdated", data);
-    }
-  }
 
   /**
    * Request to open a new persistent connection with a provider.
@@ -134,10 +124,7 @@ export class RPC {
     }
 
     if (response.data.tag !== "Ok") {
-      throw new ConsumerOpenConnectionError(
-        response.data.tag,
-        "content" in response.data ? response.data.content : response.data.tag
-      );
+      throw new ConsumerOpenConnectionError(response.data);
     }
 
     const stream = this._yamuxClient.open();
@@ -168,7 +155,7 @@ export class RPC {
     }
 
     if (response.data.tag !== "Ok") {
-      throw new ConsumerCreateJobError(response.data.tag, response.data.tag);
+      throw new ConsumerCreateJobError(response.data);
     }
 
     return response.data.content;
@@ -190,7 +177,7 @@ export class RPC {
     }
 
     if (response.data.tag !== "Ok") {
-      throw new ConsumerSyncJobError(response.data.tag);
+      throw new ConsumerSyncJobError(response.data);
     }
   }
 
@@ -209,12 +196,7 @@ export class RPC {
     }
 
     if (response.data.tag !== "Ok") {
-      throw new ConsumerCompleteJobError(
-        response.data.tag,
-        "content" in response.data
-          ? response.data.content.message
-          : response.data.tag
-      );
+      throw new ConsumerCompleteJobError(response.data);
     }
   }
 
@@ -242,12 +224,7 @@ export class RPC {
       response.data.tag !== "Ok" &&
       response.data.tag !== "AlreadyConfirmed"
     ) {
-      throw new ConsumerConfirmJobCompletionError(
-        response.data.tag,
-        "content" in response.data
-          ? response.data.content.message
-          : response.data.tag
-      );
+      throw new ConsumerConfirmJobCompletionError(response.data);
     }
 
     return response.data.tag;
@@ -270,7 +247,7 @@ export class RPC {
     }
 
     if (response.data.tag !== "Ok" && response.data.tag !== "AlreadyFailed") {
-      throw new ConsumerFailJobError(response.data.tag);
+      throw new ConsumerFailJobError(response.data);
     }
 
     return response.data.tag;
@@ -282,14 +259,22 @@ export class RPC {
   //#region Provider methods
   //
 
-  async providerConfig(data: ProviderConfig): Promise<void> {
+  /**
+   * Start providing offers.
+   * @throws {ProviderProvideError}
+   */
+  async providerProvideOffer(data: ProviderProvideData): Promise<void> {
     const response = await this._rpcRequest(
-      { type: "ProviderConfig", data },
-      "ProviderConfig"
+      { type: "ProviderProvide", data },
+      "ProviderProvide"
     );
 
-    if (response.type !== "ProviderConfig") {
+    if (response.type !== "ProviderProvide") {
       throw `Unexpected IPC response frame type: ${response.type}`;
+    }
+
+    if (response.data.tag !== "Ok") {
+      throw new ProviderProvideError(response.data);
     }
   }
 
@@ -323,7 +308,7 @@ export class RPC {
     }
 
     if (response.data.tag !== "Ok") {
-      throw new ProviderCreateJobError(response.data.tag);
+      throw new ProviderCreateJobError(response.data);
     }
 
     return response.data.content;
@@ -350,12 +335,7 @@ export class RPC {
       response.data.tag !== "Ok" &&
       response.data.tag !== "AlreadyCompleted"
     ) {
-      throw new ProviderCompleteJobError(
-        response.data.tag,
-        "content" in response.data
-          ? response.data.content.message
-          : response.data.tag
-      );
+      throw new ProviderCompleteJobError(response.data);
     }
 
     return {
@@ -381,10 +361,186 @@ export class RPC {
     }
 
     if (response.data.tag !== "Ok" && response.data.tag !== "AlreadyFailed") {
-      throw new ProviderFailJobError(response.data.tag);
+      throw new ProviderFailJobError(response.data);
     }
 
     return response.data.tag;
+  }
+
+  //
+  //#endregion
+
+  //#region Queries
+  //
+
+  async queryActiveOffers(
+    data: QueryActiveOffersRequestData
+  ): Promise<OfferSnapshot[]> {
+    const response = await this._rpcRequest(
+      { type: "QueryActiveOffers", data },
+      "QueryActiveOffers"
+    );
+
+    if (response.type !== "QueryActiveOffers") {
+      throw `Unexpected IPC response frame type: ${response.type}`;
+    }
+
+    if (response.data.tag !== "Ok") {
+      throw new QueryActiveOffersError(response.data);
+    }
+
+    return response.data.content;
+  }
+
+  async queryActiveProviders(): Promise<string[]> {
+    const response = await this._rpcRequest(
+      { type: "QueryActiveProviders", data: {} },
+      "QueryActiveProviders"
+    );
+
+    if (response.type !== "QueryActiveProviders") {
+      throw `Unexpected IPC response frame type: ${response.type}`;
+    }
+
+    return response.data.content;
+  }
+
+  async queryJobs(data: QueryJobsRequestData): Promise<JobRecord[]> {
+    const response = await this._rpcRequest(
+      { type: "QueryJobs", data },
+      "QueryJobs"
+    );
+
+    if (response.type !== "QueryJobs") {
+      throw `Unexpected IPC response frame type: ${response.type}`;
+    }
+
+    if (response.data.tag !== "Ok") {
+      throw new QueryJobsError(response.data);
+    }
+
+    return response.data.content;
+  }
+
+  async queryOfferSnapshots(
+    data: QueryOfferSnapshotsRequestData
+  ): Promise<OfferSnapshot[]> {
+    const response = await this._rpcRequest(
+      { type: "QueryOfferSnapshots", data },
+      "QueryOfferSnapshots"
+    );
+
+    if (response.type !== "QueryOfferSnapshots") {
+      throw `Unexpected IPC response frame type: ${response.type}`;
+    }
+
+    if (response.data.tag !== "Ok") {
+      throw new QueryOfferSnapshotsError(response.data);
+    }
+
+    return response.data.content;
+  }
+
+  async queryProviders(
+    data: QueryProvidersRequestData
+  ): Promise<ProviderRecord[]> {
+    const response = await this._rpcRequest(
+      { type: "QueryProviders", data },
+      "QueryProviders"
+    );
+
+    if (response.type !== "QueryProviders") {
+      throw `Unexpected IPC response frame type: ${response.type}`;
+    }
+
+    if (response.data.tag !== "Ok") {
+      throw new QueryProvidersError(response.data);
+    }
+
+    return response.data.content;
+  }
+
+  async querySystem(): Promise<{ peer_id: string }> {
+    const response = await this._rpcRequest(
+      { type: "QuerySystem", data: {} },
+      "QuerySystem"
+    );
+
+    if (response.type !== "QuerySystem") {
+      throw `Unexpected IPC response frame type: ${response.type}`;
+    }
+
+    return response.data.content;
+  }
+
+  //
+  //#endregion
+
+  //#region Subscriptions
+  //
+
+  async cancelSubscription(subscription_id: number): Promise<void> {
+    const response = await this._rpcRequest(
+      { type: "CancelSubscription", data: { subscription_id } },
+      "CancelSubscription"
+    );
+
+    if (response.type !== "CancelSubscription") {
+      throw `Unexpected IPC response frame type: ${response.type}`;
+    }
+
+    if (response.data.tag !== "Ok") {
+      throw new CancelSubscriptionError(response.data);
+    }
+  }
+
+  async subscribeToActiveOffers(
+    data: SubscribeToActiveOffersRequestData
+  ): Promise<number> {
+    const response = await this._rpcRequest(
+      { type: "SubscribeToActiveOffers", data },
+      "SubscribeToActiveOffers"
+    );
+
+    if (response.type !== "SubscribeToActiveOffers") {
+      throw `Unexpected IPC response frame type: ${response.type}`;
+    }
+
+    if (response.data.tag !== "Ok") {
+      throw new SubscribeToActiveOffersError(response.data);
+    }
+
+    return response.data.content;
+  }
+
+  async subscribeToActiveProviders(): Promise<number> {
+    const response = await this._rpcRequest(
+      { type: "SubscribeToActiveProviders", data: {} },
+      "SubscribeToActiveProviders"
+    );
+
+    if (response.type !== "SubscribeToActiveProviders") {
+      throw `Unexpected IPC response frame type: ${response.type}`;
+    }
+
+    return response.data.content;
+  }
+
+  async subscribeToJobs(data: SubscribeToJobsRequestData): Promise<number> {
+    const response = await this._rpcRequest(
+      { type: "SubscribeToJobs", data },
+      "SubscribeToJobs"
+    );
+
+    if (response.type !== "SubscribeToJobs") {
+      throw `Unexpected IPC response frame type: ${response.type}`;
+    }
+
+    if (response.data.tag !== "Ok") {
+      throw new SubscribeToJobsError(response.data);
+    }
+
+    return response.data.content;
   }
 
   //
@@ -471,20 +627,29 @@ export class RPC {
       case "Request":
         try {
           switch (frame.type) {
-            case "OfferRemoved":
-              await this.emitter.emit("offerRemoved", frame.data);
+            case "EventOfferRemoved":
+              await this.emitter.emit("offerRemoved", frame.data.payload);
+              this._ack(frame.id);
               break;
 
-            case "OfferUpdated":
-              await this.emitter.emit("offerUpdated", frame.data);
+            case "EventOfferUpdated":
+              await this.emitter.emit("offerUpdated", frame.data.payload);
+              this._ack(frame.id);
               break;
 
-            case "ProviderHeartbeat":
-              await this.emitter.emit("providerHeartbeat", frame.data);
+            case "EventProviderHeartbeat":
+              await this.emitter.emit("providerHeartbeat", frame.data.payload);
+              this._ack(frame.id);
               break;
 
-            case "ProviderUpdated":
-              await this.emitter.emit("providerUpdated", frame.data);
+            case "EventProviderUpdated":
+              await this.emitter.emit("providerUpdated", frame.data.payload);
+              this._ack(frame.id);
+              break;
+
+            case "EventJobUpdated":
+              await this.emitter.emit("jobUpdated", frame.data.payload);
+              this._ack(frame.id);
               break;
 
             case "ProviderOpenConnection":
@@ -495,12 +660,13 @@ export class RPC {
                 buffer.writeBigInt64BE(BigInt(frame.data.connection_id));
                 await writeAll(stream, buffer);
 
-                await this.emitter.emit("providerOpenConnection", {
+                this.emitter.emit("providerOpenConnection", {
                   ...frame.data,
                   stream,
                 });
               })();
 
+              this._ack(frame.id);
               break;
 
             default:
@@ -542,7 +708,10 @@ export class RPC {
     const deferred = new Deferred<InboundResponseFrame>();
     this._pendingOutboundRequests.set(id, deferred);
 
-    await writeCbor(this._rpcStream, resultingRequest);
+    await this._rpcWriteMutex.runExclusive(async () => {
+      await writeCbor(this._rpcStream, resultingRequest);
+    });
+
     const response = await deferred.promise;
 
     if (response.type !== expectedResponseType) {
@@ -560,6 +729,27 @@ export class RPC {
     }
 
     deferred.resolve(frame);
+  }
+
+  private async _respondToInboundIpcRequest(
+    inboundRequestFrameId: number,
+    response: Omit<OutboundResponseFrame, "kind" | "id">
+  ) {
+    const resultingResponse: OutboundResponseFrame = {
+      ...response,
+      kind: "Response",
+      id: inboundRequestFrameId,
+    };
+
+    await this._rpcWriteMutex.runExclusive(async () => {
+      await writeCbor(this._rpcStream, resultingResponse);
+    });
+  }
+
+  private async _ack(inboundRequestFrameId: number) {
+    await this._respondToInboundIpcRequest(inboundRequestFrameId, {
+      type: "Ack",
+    });
   }
 
   //

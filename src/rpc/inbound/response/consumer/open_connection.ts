@@ -23,7 +23,7 @@ const OtherLocalErrorSchema = v.object({
   content: v.string(),
 });
 
-const ErrorSchema = v.variant("tag", [
+const ErroneousDataSchema = v.variant("tag", [
   ProviderUnreacheableErrorSchema,
   ProviderOfferNotFoundErrorSchema,
   OtherRemoteErrorSchema,
@@ -31,11 +31,8 @@ const ErrorSchema = v.variant("tag", [
 ]);
 
 export class ConsumerOpenConnectionError extends Error {
-  constructor(
-    readonly tag: v.InferOutput<typeof ErrorSchema>["tag"],
-    message?: string
-  ) {
-    super(message);
+  constructor(readonly data: v.InferOutput<typeof ErroneousDataSchema>) {
+    super(JSON.stringify(data));
   }
 }
 

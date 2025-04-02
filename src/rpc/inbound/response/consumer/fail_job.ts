@@ -2,7 +2,6 @@ import * as v from "valibot";
 
 const OkSchema = v.object({
   tag: v.literal("Ok"),
-  content: v.object({ completed_at_sync: v.number() }),
 });
 
 const InvalidJobIdSchema = v.object({
@@ -11,30 +10,20 @@ const InvalidJobIdSchema = v.object({
 
 const AlreadyCompletedSchema = v.object({
   tag: v.literal("AlreadyCompleted"),
-  content: v.object({ completed_at_sync: v.number() }),
 });
 
 const AlreadyFailedSchema = v.object({
   tag: v.literal("AlreadyFailed"),
 });
 
-const InvalidBalanceDeltaSchema = v.object({
-  tag: v.literal("InvalidBalanceDelta"),
-  content: v.object({ message: v.string() }),
-});
-
-const ErrorSchema = v.variant("tag", [
+const ErroneousDataSchema = v.variant("tag", [
   InvalidJobIdSchema,
-  AlreadyFailedSchema,
-  InvalidBalanceDeltaSchema,
+  AlreadyCompletedSchema,
 ]);
 
-export class ProviderCompleteJobError extends Error {
-  constructor(
-    readonly tag: v.InferOutput<typeof ErrorSchema>["tag"],
-    message?: string
-  ) {
-    super(message);
+export class ConsumerFailJobError extends Error {
+  constructor(readonly data: v.InferOutput<typeof ErroneousDataSchema>) {
+    super(JSON.stringify(data));
   }
 }
 
@@ -43,12 +32,11 @@ const DataSchema = v.variant("tag", [
   InvalidJobIdSchema,
   AlreadyCompletedSchema,
   AlreadyFailedSchema,
-  InvalidBalanceDeltaSchema,
 ]);
 
 export const FrameSchema = v.object({
   kind: v.literal("Response"),
-  type: v.literal("ProviderCompleteJob"),
+  type: v.literal("ConsumerFailJob"),
   id: v.number(),
   data: DataSchema,
 });

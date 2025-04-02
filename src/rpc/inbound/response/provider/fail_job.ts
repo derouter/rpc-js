@@ -16,17 +16,14 @@ const AlreadyFailedSchema = v.object({
   tag: v.literal("AlreadyFailed"),
 });
 
-const ErrorSchema = v.variant("tag", [
+const ErroneousDataSchema = v.variant("tag", [
   InvalidJobIdSchema,
   AlreadyCompletedSchema,
 ]);
 
-export class ConsumerFailJobError extends Error {
-  constructor(
-    readonly tag: v.InferOutput<typeof ErrorSchema>["tag"],
-    message?: string
-  ) {
-    super(message);
+export class ProviderFailJobError extends Error {
+  constructor(readonly data: v.InferOutput<typeof ErroneousDataSchema>) {
+    super(JSON.stringify(data));
   }
 }
 
@@ -39,7 +36,7 @@ const DataSchema = v.variant("tag", [
 
 export const FrameSchema = v.object({
   kind: v.literal("Response"),
-  type: v.literal("ConsumerFailJob"),
+  type: v.literal("ProviderFailJob"),
   id: v.number(),
   data: DataSchema,
 });

@@ -38,7 +38,7 @@ const ProviderErrorSchema = v.object({
   }),
 });
 
-const ErrorSchema = v.variant("tag", [
+const ErroneousDataSchema = v.variant("tag", [
   InvalidConsumerPeerIdSchema,
   InvalidJobIdSchema,
   NotCompletedYetSchema,
@@ -48,11 +48,8 @@ const ErrorSchema = v.variant("tag", [
 ]);
 
 export class ConsumerConfirmJobCompletionError extends Error {
-  constructor(
-    readonly tag: v.InferOutput<typeof ErrorSchema>["tag"],
-    message?: string
-  ) {
-    super(message);
+  constructor(readonly data: v.InferOutput<typeof ErroneousDataSchema>) {
+    super(JSON.stringify(data));
   }
 }
 

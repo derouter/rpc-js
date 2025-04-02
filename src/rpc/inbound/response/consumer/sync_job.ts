@@ -16,18 +16,15 @@ const ProviderJobIdUniquenessSchema = v.object({
   tag: v.literal("ProviderJobIdUniqueness"),
 });
 
-const ErrorSchema = v.variant("tag", [
+const ErroneousDataSchema = v.variant("tag", [
   InvalidJobIdSchema,
   AlreadySyncedSchema,
   ProviderJobIdUniquenessSchema,
 ]);
 
 export class ConsumerSyncJobError extends Error {
-  constructor(
-    readonly tag: v.InferOutput<typeof ErrorSchema>["tag"],
-    message?: string
-  ) {
-    super(message);
+  constructor(readonly data: v.InferOutput<typeof ErroneousDataSchema>) {
+    super(JSON.stringify(data));
   }
 }
 
