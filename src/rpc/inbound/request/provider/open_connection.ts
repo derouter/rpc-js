@@ -4,7 +4,7 @@ export const DataSchema = v.object({
   customer_peer_id: v.string(),
   protocol_id: v.string(),
   offer_id: v.string(),
-  protocol_payload: v.unknown(),
+  protocol_payload: v.string(),
   connection_id: v.number(),
 });
 

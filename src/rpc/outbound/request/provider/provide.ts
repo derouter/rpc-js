@@ -3,7 +3,7 @@ import * as v from "valibot";
 export const DataSchema = v.object({
   protocol_id: v.string(),
   offer_id: v.string(),
-  protocol_payload: v.any(),
+  protocol_payload: v.string(),
 });
 
 export type ProviderProvideData = v.InferOutput<typeof DataSchema>;
