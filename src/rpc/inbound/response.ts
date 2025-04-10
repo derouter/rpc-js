@@ -1,15 +1,13 @@
 import * as v from "valibot";
 
+import * as FailJob from "./response/fail_job.js";
+
 import * as ConsumerCompleteJob from "./response/consumer/complete_job.js";
-import * as ConsumerConfirmJobCompletion from "./response/consumer/confirm_job_completion.js";
 import * as ConsumerCreateJob from "./response/consumer/create_job.js";
-import * as ConsumerFailJob from "./response/consumer/fail_job.js";
-import * as ConsumerOpenConnection from "./response/consumer/open_connection.js";
-import * as ConsumerSyncJob from "./response/consumer/sync_job.js";
+import * as ConsumerGetJob from "./response/consumer/get_job.js";
+import * as ConsumerOpenJobConnection from "./response/consumer/open_job_connection.js";
 
 import * as ProviderCompleteJob from "./response/provider/complete_job.js";
-import * as ProviderCreateJob from "./response/provider/create_job.js";
-import * as ProviderFailJob from "./response/provider/fail_job.js";
 import * as ProviderProvide from "./response/provider/provide.js";
 
 import * as QueryActiveOffers from "./response/query/active_offers.js";
@@ -25,16 +23,14 @@ import * as CancelSubscription from "./response/subscription/cancel.js";
 import * as SubscribeToJobs from "./response/subscription/jobs.js";
 
 export const InboundResponseFrameSchema = v.variant("type", [
+  FailJob.FrameSchema,
+  //
   ConsumerCompleteJob.FrameSchema,
-  ConsumerConfirmJobCompletion.FrameSchema,
   ConsumerCreateJob.FrameSchema,
-  ConsumerFailJob.FrameSchema,
-  ConsumerOpenConnection.FrameSchema,
-  ConsumerSyncJob.FrameSchema,
+  ConsumerGetJob.FrameSchema,
+  ConsumerOpenJobConnection.FrameSchema,
   //
   ProviderCompleteJob.FrameSchema,
-  ProviderCreateJob.FrameSchema,
-  ProviderFailJob.FrameSchema,
   ProviderProvide.FrameSchema,
   //
   QueryActiveOffers.FrameSchema,

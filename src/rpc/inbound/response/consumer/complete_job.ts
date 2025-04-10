@@ -4,17 +4,20 @@ const OkSchema = v.object({
   tag: v.literal("Ok"),
 });
 
-const InvalidConsumerPeerIdSchema = v.object({
-  tag: v.literal("InvalidConsumerPeerId"),
-  content: v.object({ message: v.string() }),
-});
-
 const InvalidJobIdSchema = v.object({
   tag: v.literal("InvalidJobId"),
 });
 
-const NotSyncedYetSchema = v.object({
-  tag: v.literal("NotSyncedYet"),
+const InvalidConsumerPeerIdSchema = v.object({
+  tag: v.literal("InvalidConsumerPeerId"),
+});
+
+const AlreadyFailedSchema = v.object({
+  tag: v.literal("AlreadyFailed"),
+  content: v.object({
+    reason: v.string(),
+    reason_class: v.nullish(v.number()),
+  }),
 });
 
 const AlreadyCompletedSchema = v.object({
@@ -23,13 +26,12 @@ const AlreadyCompletedSchema = v.object({
 
 const InvalidBalanceDeltaSchema = v.object({
   tag: v.literal("InvalidBalanceDelta"),
-  content: v.object({ message: v.string() }),
 });
 
 const ErroneousDataSchema = v.variant("tag", [
   InvalidConsumerPeerIdSchema,
   InvalidJobIdSchema,
-  NotSyncedYetSchema,
+  AlreadyFailedSchema,
   AlreadyCompletedSchema,
   InvalidBalanceDeltaSchema,
 ]);
@@ -44,7 +46,7 @@ const DataSchema = v.variant("tag", [
   OkSchema,
   InvalidConsumerPeerIdSchema,
   InvalidJobIdSchema,
-  NotSyncedYetSchema,
+  AlreadyFailedSchema,
   AlreadyCompletedSchema,
   InvalidBalanceDeltaSchema,
 ]);

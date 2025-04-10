@@ -1,21 +1,51 @@
 import * as v from "valibot";
+import { PeerIdInputSchema } from "../../../common.js";
 
 const OkSchema = v.object({
   tag: v.literal("Ok"),
-  content: v.object({ database_job_id: v.number() }),
+  content: v.object({
+    provider_peer_id: PeerIdInputSchema,
+    provider_job_id: v.string(),
+  }),
 });
 
-const ConnectionNotFoundSchema = v.object({
-  tag: v.literal("ConnectionNotFound"),
+const LocalOfferNotFoundSchema = v.object({
+  tag: v.literal("LocalOfferNotFound"),
 });
 
-const ProviderJobIdUniquenessSchema = v.object({
-  tag: v.literal("ProviderJobIdUniqueness"),
+const ProviderUnreacheableSchema = v.object({
+  tag: v.literal("ProviderUnreacheable"),
+});
+
+const ProviderInvalidResponseSchema = v.object({
+  tag: v.literal("ProviderInvalidResponse"),
+});
+
+const ProviderOfferNotFoundSchema = v.object({
+  tag: v.literal("ProviderOfferNotFound"),
+});
+
+const ProviderOfferPayloadMismatchSchema = v.object({
+  tag: v.literal("ProviderOfferPayloadMismatch"),
+});
+
+const InvalidJobArgsSchema = v.object({
+  tag: v.literal("InvalidJobArgs"),
+  content: v.string(),
+});
+
+const ProviderBusySchema = v.object({
+  tag: v.literal("ProviderBusy"),
 });
 
 const ErroneousDataSchema = v.variant("tag", [
-  ConnectionNotFoundSchema,
-  ProviderJobIdUniquenessSchema,
+  LocalOfferNotFoundSchema,
+  ProviderUnreacheableSchema,
+  ProviderInvalidResponseSchema,
+  ProviderOfferNotFoundSchema,
+  ProviderOfferPayloadMismatchSchema,
+  InvalidJobArgsSchema,
+  ProviderBusySchema,
 ]);
 
 export class ConsumerCreateJobError extends Error {
@@ -26,8 +56,13 @@ export class ConsumerCreateJobError extends Error {
 
 const DataSchema = v.variant("tag", [
   OkSchema,
-  ConnectionNotFoundSchema,
-  ProviderJobIdUniquenessSchema,
+  LocalOfferNotFoundSchema,
+  ProviderUnreacheableSchema,
+  ProviderInvalidResponseSchema,
+  ProviderOfferNotFoundSchema,
+  ProviderOfferPayloadMismatchSchema,
+  InvalidJobArgsSchema,
+  ProviderBusySchema,
 ]);
 
 export const FrameSchema = v.object({

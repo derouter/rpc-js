@@ -2,7 +2,7 @@ import * as v from "valibot";
 
 const DataSchema = v.object({});
 
-export type QuerySystemRequestData = v.InferOutput<typeof DataSchema>;
+export type QuerySystemRequestData = v.InferInput<typeof DataSchema>;
 
 export const FrameSchema = v.object({
   kind: v.literal("Request"),

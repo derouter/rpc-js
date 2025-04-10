@@ -16,15 +16,19 @@ const AlreadyCompletedSchema = v.object({
 
 const AlreadyFailedSchema = v.object({
   tag: v.literal("AlreadyFailed"),
+  content: v.object({
+    reason: v.string(),
+    reason_class: v.nullish(v.number()),
+  }),
 });
 
 const InvalidBalanceDeltaSchema = v.object({
   tag: v.literal("InvalidBalanceDelta"),
-  content: v.object({ message: v.string() }),
 });
 
 const ErroneousDataSchema = v.variant("tag", [
   InvalidJobIdSchema,
+  AlreadyCompletedSchema,
   AlreadyFailedSchema,
   InvalidBalanceDeltaSchema,
 ]);

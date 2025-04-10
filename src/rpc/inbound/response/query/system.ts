@@ -1,9 +1,10 @@
 import * as v from "valibot";
+import { PeerIdInputSchema } from "../../../common.js";
 
 const OkSchema = v.object({
   tag: v.literal("Ok"),
   content: v.object({
-    peer_id: v.string(),
+    peer_id: PeerIdInputSchema,
   }),
 });
 

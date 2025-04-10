@@ -5,12 +5,24 @@ const OkSchema = v.object({
   content: v.object({ connection_id: v.number() }),
 });
 
-const ProviderUnreacheableErrorSchema = v.object({
+const LocalJobNotFoundSchema = v.object({
+  tag: v.literal("LocalJobNotFound"),
+});
+
+const ProviderUnreacheableSchema = v.object({
   tag: v.literal("ProviderUnreacheable"),
 });
 
-const ProviderOfferNotFoundErrorSchema = v.object({
-  tag: v.literal("ProviderOfferNotFound"),
+const ProviderJobNotFoundSchema = v.object({
+  tag: v.literal("ProviderJobNotFound"),
+});
+
+const ProviderJobExpiredSchema = v.object({
+  tag: v.literal("ProviderJobExpired"),
+});
+
+const ProviderBusySchema = v.object({
+  tag: v.literal("ProviderBusy"),
 });
 
 const OtherRemoteErrorSchema = v.object({
@@ -24,13 +36,16 @@ const OtherLocalErrorSchema = v.object({
 });
 
 const ErroneousDataSchema = v.variant("tag", [
-  ProviderUnreacheableErrorSchema,
-  ProviderOfferNotFoundErrorSchema,
+  LocalJobNotFoundSchema,
+  ProviderUnreacheableSchema,
+  ProviderJobNotFoundSchema,
+  ProviderJobExpiredSchema,
+  ProviderBusySchema,
   OtherRemoteErrorSchema,
   OtherLocalErrorSchema,
 ]);
 
-export class ConsumerOpenConnectionError extends Error {
+export class ConsumerOpenJobConnectionError extends Error {
   constructor(readonly data: v.InferOutput<typeof ErroneousDataSchema>) {
     super(JSON.stringify(data));
   }
@@ -38,15 +53,18 @@ export class ConsumerOpenConnectionError extends Error {
 
 const DataSchema = v.variant("tag", [
   OkSchema,
-  ProviderUnreacheableErrorSchema,
-  ProviderOfferNotFoundErrorSchema,
+  LocalJobNotFoundSchema,
+  ProviderUnreacheableSchema,
+  ProviderJobNotFoundSchema,
+  ProviderJobExpiredSchema,
+  ProviderBusySchema,
   OtherRemoteErrorSchema,
   OtherLocalErrorSchema,
 ]);
 
 export const FrameSchema = v.object({
   kind: v.literal("Response"),
-  type: v.literal("ConsumerOpenConnection"),
+  type: v.literal("ConsumerOpenJobConnection"),
   id: v.number(),
   data: DataSchema,
 });

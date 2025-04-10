@@ -1,18 +1,22 @@
 import * as v from "valibot";
+import { PeerIdOutputSchema } from "../../../common.js";
 
-const DataSchema = v.object({
-  database_job_id: v.number(),
-  completed_at_sync: v.number(),
-  balance_delta: v.nullable(v.string()),
+export const ConsumerCompleteJobDataSchema = v.object({
+  provider_peer_id: PeerIdOutputSchema,
+  provider_job_id: v.string(),
   public_payload: v.string(),
   private_payload: v.optional(v.string()),
+  balance_delta: v.nullable(v.string()),
+  completed_at_sync: v.number(),
 });
 
-export type ConsumerCompleteJobData = v.InferOutput<typeof DataSchema>;
+export type ConsumerCompleteJobData = v.InferInput<
+  typeof ConsumerCompleteJobDataSchema
+>;
 
 export const FrameSchema = v.object({
   kind: v.literal("Request"),
   type: v.literal("ConsumerCompleteJob"),
   id: v.number(),
-  data: DataSchema,
+  data: ConsumerCompleteJobDataSchema,
 });

@@ -1,4 +1,5 @@
 import * as v from "valibot";
+import { PeerIdInputSchema } from "../common.js";
 
 export const OfferSnapshotSchema = v.object({
   /**
@@ -9,7 +10,7 @@ export const OfferSnapshotSchema = v.object({
   snapshot_id: v.number(),
 
   active: v.boolean(),
-  provider_peer_id: v.string(),
+  provider_peer_id: PeerIdInputSchema,
   protocol_id: v.string(),
   offer_id: v.string(),
   protocol_payload: v.any(),
@@ -19,7 +20,7 @@ export type OfferSnapshot = v.InferOutput<typeof OfferSnapshotSchema>;
 
 export const OfferRemovedSchema = v.object({
   snapshot_id: v.number(),
-  provider_peer_id: v.string(),
+  provider_peer_id: PeerIdInputSchema,
   protocol_id: v.string(),
   offer_id: v.string(),
 });
@@ -32,7 +33,7 @@ const TimestampSchema = v.pipe(
 );
 
 export const ProviderRecordSchema = v.object({
-  peer_id: v.string(),
+  peer_id: PeerIdInputSchema,
   name: v.optional(v.string()),
   teaser: v.optional(v.string()),
   description: v.optional(v.string()),
@@ -43,7 +44,7 @@ export const ProviderRecordSchema = v.object({
 export type ProviderRecord = v.InferOutput<typeof ProviderRecordSchema>;
 
 export const ProviderHeartbeatSchema = v.object({
-  peer_id: v.string(),
+  peer_id: PeerIdInputSchema,
   latest_heartbeat_at: TimestampSchema,
 });
 
@@ -51,8 +52,8 @@ export type ProviderHeartbeat = v.InferOutput<typeof ProviderHeartbeatSchema>;
 
 export const JobRecordSchema = v.object({
   job_rowid: v.number(),
-  provider_peer_id: v.string(),
-  consumer_peer_id: v.string(),
+  provider_peer_id: PeerIdInputSchema,
+  consumer_peer_id: PeerIdInputSchema,
   offer_snapshot_rowid: v.number(),
   offer_protocol_id: v.string(),
   currency: v.number(),

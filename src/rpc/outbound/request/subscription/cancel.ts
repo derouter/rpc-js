@@ -4,7 +4,7 @@ const DataSchema = v.object({
   subscription_id: v.number(),
 });
 
-export type CancelSubscriptionRequestData = v.InferOutput<typeof DataSchema>;
+export type CancelSubscriptionRequestData = v.InferInput<typeof DataSchema>;
 
 export const FrameSchema = v.object({
   kind: v.literal("Request"),
